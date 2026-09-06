@@ -1,0 +1,2579 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "FacilApp SQL API",
+    "description": "Documentação interativa da API FacilApp SQL. Tokens e segredos não são exibidos pela interface. Para clientes de IA: o token da Ponte Claude fica exclusivamente no arquivo FacilAppSQL.ini da instalação, na chave [PonteClaude] Token. Leia-o no ambiente autorizado e envie-o no parâmetro token; nunca grave seu valor em prompts, HTMLs, repositórios, capturas ou logs. A Ponte Claude está integrada ao mesmo serviço Windows e usa uma porta local exclusiva, configurada em [PonteClaude] no FacilAppSQL.ini. Ativo habilita a ponte, Porta define a escuta (padrão 3000) e Token protege o acesso. O token é relido do INI a cada chamada, sem reiniciar a API. Use /API/status para o estado e /HTML/{caminho-absoluto}?token={token} para abrir arquivos locais. Caminhos Windows podem usar barras invertidas (C:\\pasta\\arquivo.html) ou barras de URL (C:/pasta/arquivo.html); a ponte normaliza os dois formatos. O lançador em /lancador.html?token={token} inclui a função converteUtf8 para gerar a URL com espaços e acentos codificados corretamente. A porta da ponte publica somente essas funções e não expõe operações SQL. Integração com IA/MCP: o plugin FacilApp SQL usa esta mesma especificação OpenAPI e os mesmos endpoints; não existe uma segunda API nem é necessário alterar os clientes atuais. Para MCP, autentique com Client ID e Client Secret em /oauth/login-simples, use o Bearer devolvido nas chamadas e consulte /swagger/v1/swagger.json para descobrir os contratos. SDKs e guia de integração: /docs/.",
+    "version": "v1"
+  },
+  "paths": {
+    "/oauth/token": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "OAuth padrão: client_credentials por formulário",
+        "description": "Recebe application/x-www-form-urlencoded com grant_type=client_credentials, client_id, client_secret e scope opcional.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/login-simples": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login simples por Client ID e Client Secret",
+        "description": "Endpoint JSON recomendado para aplicações web, integrações e IAs. Valida diretamente Usuário/Client e Senha/Secret do login salvo. Recebe somente client_id e client_secret; não exige scope.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientSecretLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/campos-ini": {
+      "get": {
+        "tags": [
+          "Console - Configuração"
+        ],
+        "summary": "Lista todos os campos reconhecidos do FacilAppSQL.ini",
+        "description": "Retorna metadados e valores padrão não secretos. Senhas, tokens e Client Secrets nunca são devolvidos.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{empresaId}/usuarios/{id}/ImportaMenu": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastra usuário da empresa",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Informe nome, usuário, senha, `client_id` e, opcionalmente, os três JSONs de menu.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportMenuRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/empresas/consultar-cnpj-completo/{cnpj}": {
+      "get": {
+        "tags": [
+          "Empresas"
+        ],
+        "summary": "Consulta CNPJ e retorna o JSON integral da fonte pública",
+        "description": "Mantém a consulta normalizada existente e expõe, nesta rota separada, todos os campos do JSON respondido pela BrasilAPI ou CNPJ.ws. Exemplo: GET /api/console/empresas/consultar-cnpj-completo/57202784000158.",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/swagger": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/status": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/status": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/setup": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/testes/token": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/oauth/usuario": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalUserLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/executar": {
+      "post": {
+        "tags": [
+          "Funções da API"
+        ],
+        "summary": "Consulta Livre e funções da FacilApp SQL API",
+        "description": "Todas as operações abaixo são enviadas por **POST /executar** no campo `funcao`.\n\n**Login público, sem Bearer de entrada:** `Login`, `LoginVlink`. Envie somente `usuario` e `senha`; a API valida o login e responde com `access_token` Bearer.\n\n`Login` também devolve `cnpj` somente com números no nível principal e dentro de `usuario`, além de `usuario` (`idUsuario`, `idFilial`, `login`, `nome`) e `permissoes` (`lateral`, `superior`, `dashboards`) cadastradas no SQLite. `LoginVlink` valida os mesmos campos na tabela `usuarios` do banco VLINK e retorna o Bearer.\n\n**Renovação:** `ObterToken` exige um Bearer ainda válido no cabeçalho `Authorization`. Ela devolve um novo `access_token` com os mesmos escopos, sem solicitar usuário, senha, Client ID ou Client Secret. Se o Bearer já venceu, chame `Login` novamente.\n\n**Banco definido pela chamada:** envie `tipo_banco`, `servidor` e `banco` no JSON. Esses valores têm prioridade sobre os padrões do INI; o INI fornece somente a configuração técnica da conexão quando necessária.\n\n**Consulta Livre:** use `POST /executar` com `funcao: \"consulta_livre\"`. Não existe outro endpoint para ela. A API envia o conteúdo de `sql` integralmente ao banco indicado, sem filtrar, limitar, reescrever ou bloquear comandos. Aceita consultas e execuções permitidas pelo próprio SGBD: `SELECT`, `JOIN`, subconsultas, CTEs, `INSERT`, `UPDATE`, `DELETE`, DDL, lotes, procedures (`EXEC`, `EXECUTE` ou `CALL`), funções, triggers e demais construções do dialeto escolhido.\n\n**Sem bloqueio pela API:** com Bearer válido, a Consulta Livre não impõe lista de tabelas, campos ou comandos, não exige `where`, não restringe somente leitura e não aplica limite fixo de registros. Isso inclui comandos destrutivos como `DROP`, `TRUNCATE` e `ALTER`: a API não os bloqueia. Erros ou restrições devolvidos pelo servidor de banco continuam sendo retornados normalmente, conforme as permissões do usuário técnico configurado para aquele banco.\n\n**ATENÇÃO — compatibilidade do SQL com o banco:** o front-end deve montar o campo `sql` conforme o dialeto informado em `tipo_banco`. Um SQL válido em um banco pode falhar em outro. Valores aceitos: `mysql`, `mariadb`, `sqlserver`, `postgresql` e `sqlite` (além dos demais bancos documentados pela API). Verifique especialmente delimitadores de nomes, concatenação, funções de data, conversões, paginação (`LIMIT`, `TOP`, `OFFSET/FETCH`) e tipos de parâmetros. A API encaminha o SQL ao banco selecionado; ela não converte automaticamente um dialeto para outro.\n\n**Funções mantidas por compatibilidade:** `consultar`, `inserir`, `alterar` e `excluir` continuam aceitas em `POST /executar`, mas são encaminhadas internamente e de forma transparente para a rotina estruturada Multibanco. Elas não executam SQL livre. Use `tabela`, `campos`, `dados` e `where`, conforme a operação, e informe `tipo_banco`. Para novas telas, prefira os endpoints `/multibanco/consultar`, `/multibanco/inserir`, `/multibanco/alterar` e `/multibanco/excluir`.\n\n- `funcao: \"consultar\"` → Multibanco `select`.\n- `funcao: \"inserir\"` → Multibanco `insert`.\n- `funcao: \"alterar\"` → Multibanco `update`.\n- `funcao: \"excluir\"` → Multibanco `delete`.\n\n**Funções genéricas recomendadas (use estas em todas as telas):** `consultar` (consulta estruturada), `consulta_livre` (SQL livre), `listar_tabelas` e `listar_campos`. Informe `tipo_banco` como `sqlite`, `postgresql`, `sqlserver`, `mariadb`, `mysql`, `oracle` ou `hfsql`.\n\n**Multibanco estruturado:** use os endpoints separados `/multibanco/consultar`, `/multibanco/inserir`, `/multibanco/alterar`, `/multibanco/excluir` e `/multibanco/estrutura`. O último cria tabelas ausentes, adiciona campos ausentes e confere tipo/tamanho usando o dialeto de SQLite, PostgreSQL, SQL Server, MariaDB, MySQL, Oracle ou HFSQL.\n\nExemplo: `{ \"funcao\": \"inserir_multibanco\", \"tipo_banco\": \"sqlite\", \"banco\": \"gourmet.db\", \"tabela\": \"categorias\", \"dados\": { \"nome\": \"Bebidas\", \"ativo\": 1 } }`.\n\n1. Listar tabelas: `{ \"funcao\": \"listar_tabelas\", \"tipo_banco\": \"sqlite\", \"banco\": \"../Dados/facilapp_sql.db\" }`.\n\n2. Consultar uma tabela: `{ \"funcao\": \"consultar_sqlite\", \"banco\": \"../Dados/facilapp_sql.db\", \"tabela\": \"console_empresas\", \"campos\": \"*\" }`.\n\n3. Consulta Livre SQLite: `{ \"funcao\": \"consulta_livre\", \"tipo_banco\": \"sqlite\", \"banco\": \"../Dados/facilapp_sql.db\", \"sql\": \"SELECT * FROM console_empresas\" }`.\n\n4. Consulta Livre SQL Server: `{ \"funcao\": \"consulta_livre\", \"tipo_banco\": \"sqlserver\", \"servidor\": \"SERVIDOR\", \"banco\": \"GOURMET\", \"sql\": \"SELECT TOP 100 c.id, c.nome FROM clientes c ORDER BY c.nome\" }`.\n\n5. Consulta Livre MySQL/MariaDB/PostgreSQL/SQLite: use o `LIMIT` próprio desses bancos, por exemplo `SELECT id, nome FROM clientes ORDER BY nome LIMIT 100`. Não envie esse formato ao SQL Server.\n\nA resposta bem-sucedida contém `ok: true` e o resultado em `dados`. No SQLite, `banco` aceita o nome ou o caminho informado pela aplicação.\n\n**Consultas padrão:** `consultar`, `consulta_livre`, `listar_tabelas`, `listar_campos`. As funções específicas por banco (`consultar_sqlite`, `consultar_sqlite_livre` e equivalentes) ficam restritas à compatibilidade com telas antigas; novas telas devem usar somente as funções genéricas e trocar `tipo_banco`.\n\n**Alterações estruturadas em dados:** `inserir`, `alterar`, `excluir` e seus endpoints Multibanco correspondentes.\n\n**Gravar e ler arquivos:** `arquivo_salvar`, `arquivo_ler`, `arquivo_listar`, `arquivo_excluir`. Em `arquivo_salvar` e `arquivo_ler`, informe em `nome_arquivo` o **caminho completo incluindo o nome e a extensão do arquivo**, por exemplo `C:\\\\FacilApp\\\\Curso\\\\HTML\\\\config.js` ou `C:\\\\FacilApp\\\\Curso\\\\FacilAppSQL.ini`; a API usa exatamente esse destino. Quando receber somente `config.js`, mantém o modo compatível e grava no `[Arquivos] DiretorioBase` com categoria/desenvolvedor/usuário. Somente extensões presentes em `[Arquivos] ExtensoesPermitidas` são aceitas.\n\n**Integrações:** `mapa_geocodificar`, `whatsapp_zapi_enviar`, `whatsapp_enviar`, `whatsapp_meta_enviar`, `ia_chat`, `consulta_via_ia`, `executar_via_ia`.\n\n**Configuração:** `cfg_ler`, `cfg_gravar`.\n\nA autenticação de `/executar` é `Authorization: Bearer {access_token}` válido. Com Bearer válido, não há bloqueio por origem, IP, LAN, WAN, Tailscale, domínio, escopo, banco, tabela, comando SQL ou quantidade de registros. Para arquivos, permanece válida somente a lista configurável `[Arquivos] ExtensoesPermitidas`.\n\n**Login SQLite obrigatório:** identifica o usuário por `sistema_id + cnpj + usuario + senha`.\n\n**Exemplo Login:** `{ \"funcao\": \"Login\", \"sistema_id\": \"gourmet\", \"cnpj\": \"12345678000190\", \"usuario\": \"usuario\", \"senha\": \"senha\" }`\n\n**Endpoints de usuário:** `GET /api/console/empresas/{empresaId}/usuarios` (listar), `GET /api/console/empresas/{empresaId}/usuarios/{id}` (consultar), `POST /api/console/empresas/{empresaId}/usuarios` (cadastrar), `PUT /api/console/empresas/{empresaId}/usuarios/{id}` (alterar), `PUT /api/console/empresas/{empresaId}/usuarios/{id}/senha`, `DELETE /api/console/usuarios/{id}`, `GET /api/console/empresas/{empresaId}/usuarios/{id}/menus` e `PUT /api/console/empresas/{empresaId}/usuarios/{id}/menus`. Pertencem à API única e funcionam igualmente por localhost, LAN, internet ou Tailscale com access token válido, preservando o vínculo com a empresa.\n\n**Exemplo ObterToken:** `{ \"funcao\": \"ObterToken\" }` com o Bearer atual no cabeçalho.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/webhook/zapi": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZApiWebhookRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{cnpj}": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{cnpj}/logo": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/consultar-cnpj/{cnpj}": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/credenciadores": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{empresaId}/usuarios": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Lista os usuários ativos de uma empresa",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastra usuário da empresa",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Informe nome, usuário, senha, `client_id` e, opcionalmente, os três JSONs de menu.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/empresas/{empresaId}/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Consulta um usuário da empresa",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Altera dados e menus de um usuário",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/sistemas": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/sistemas/{id}": {
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/usuarios/{id}": {
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Exclui usuário",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. A exclusão impede novos logins imediatamente.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/empresas/{empresaId}/usuarios/{id}/senha": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Altera somente a senha de um usuário",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalUserPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/empresas/{empresaId}/usuarios/{id}/menus": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Consulta menus e dashboards de um usuário",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Retorna `menu_data`, `menu_superior_data` e `dashboard_data` como listas JSON.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Grava menus e dashboards de um usuário",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. O corpo contém as listas JSON `menu_data`, `menu_superior_data` e `dashboard_data`.",
+        "parameters": [
+          {
+            "name": "empresaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalUserMenuRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/menus/aplicar-sqlite": {
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "summary": "Aplica os três catálogos de menu em um SQLite",
+        "description": "Recebe as listas MenuData, MenuSuperiorData e DashBoardData, cria backup do banco e atualiza todos os usuários ativos. Requer uma sessão administrativa local da console.",
+        "operationId": "AplicarMenusSQLite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuProfileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/dashboard": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{cnpj}/conexoes": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectionProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configura-vlink": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VlinkConfigurationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/arquivos": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/arquivos/ini": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/arquivos/config-js": {
+      "get": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/arquivos/aplicar": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationFileUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/geral": {
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeneralConfigurationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/bancos/{tipo}": {
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseConfigurationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/bancos/{tipo}/testar": {
+      "post": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "parameters": [
+          {
+            "name": "tipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/configuracoes/integracoes": {
+      "put": {
+        "tags": [
+          "FacilApp.Sql.Api"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntegrationConfigurationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{cnpj}/pagamentos": {
+      "get": {
+        "tags": [
+          "Mensalidades"
+        ],
+        "summary": "Consulta pagamentos e situação da empresa",
+        "description": "Retorna o tipo de pagamento da empresa, histórico, último pagamento e limite de 45 dias. Exige Authorization: Bearer válido.",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Mensalidades"
+        ],
+        "summary": "Registra pagamento de mensalidade",
+        "description": "Grava data_pagamento e valor no histórico da empresa. A partir da data informada, a mensalidade permite login por até 45 dias. Exige Authorization: Bearer válido.",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/mensalidades": {
+      "get": {
+        "tags": [
+          "Mensalidades"
+        ],
+        "summary": "Lista a situação de mensalidade das empresas",
+        "description": "Retorna um browse com todas as empresas, modelo vitalício/mensalidade, último pagamento e limite de 45 dias. Exige Authorization: Bearer válido.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/empresas/{cnpj}/pagamentos/{paymentId}": {
+      "put": {
+        "tags": [
+          "Mensalidades"
+        ],
+        "summary": "Altera um pagamento de mensalidade",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyPaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Mensalidades"
+        ],
+        "summary": "Exclui um pagamento de mensalidade",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/multibanco/consultar": {
+      "post": {
+        "tags": [
+          "Multibanco"
+        ],
+        "summary": "Consultar — multibanco",
+        "description": "Consulta estruturada. A API gera o dialeto de SQLite, PostgreSQL, SQL Server, MySQL, MariaDB, Oracle ou HFSQL. Exige Authorization: Bearer {access_token} válido.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"tipo_banco\":\"sqlite\",\"banco\":\"gourmet.db\",\"tabela\":\"categorias\",\"campos\":\"id,nome,ativo\",\"where\":{\"ativo\":1}}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação executada."
+          },
+          "400": {
+            "description": "Dados inválidos ou conflito de estrutura."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "403": {
+            "description": "Acesso recusado."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/multibanco/inserir": {
+      "post": {
+        "tags": [
+          "Multibanco"
+        ],
+        "summary": "Inserir — multibanco",
+        "description": "Insere dados parametrizados no banco informado; a tela não precisa escrever SQL. Exige Authorization: Bearer {access_token} válido.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"tipo_banco\":\"sqlite\",\"banco\":\"gourmet.db\",\"tabela\":\"categorias\",\"dados\":{\"nome\":\"Bebidas\",\"ativo\":1}}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação executada."
+          },
+          "400": {
+            "description": "Dados inválidos ou conflito de estrutura."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "403": {
+            "description": "Acesso recusado."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/multibanco/alterar": {
+      "post": {
+        "tags": [
+          "Multibanco"
+        ],
+        "summary": "Alterar — multibanco",
+        "description": "Altera dados parametrizados. O objeto where é obrigatório. Exige Authorization: Bearer {access_token} válido.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"tipo_banco\":\"postgresql\",\"banco\":\"GOURMET\",\"tabela\":\"categorias\",\"dados\":{\"nome\":\"Bebidas geladas\"},\"where\":{\"id\":1}}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação executada."
+          },
+          "400": {
+            "description": "Dados inválidos ou conflito de estrutura."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "403": {
+            "description": "Acesso recusado."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/multibanco/excluir": {
+      "post": {
+        "tags": [
+          "Multibanco"
+        ],
+        "summary": "Excluir — multibanco",
+        "description": "Exclui dados parametrizados. O objeto where é obrigatório. Exige Authorization: Bearer {access_token} válido.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"tipo_banco\":\"sqlserver\",\"banco\":\"GOURMET\",\"tabela\":\"categorias\",\"where\":{\"id\":1}}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação executada."
+          },
+          "400": {
+            "description": "Dados inválidos ou conflito de estrutura."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "403": {
+            "description": "Acesso recusado."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/api/console/pessoas/consulta-cpf/status": {
+      "get": {
+        "tags": [
+          "Pessoas Físicas"
+        ],
+        "summary": "Informa se a consulta CPF está ativa",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/console/pessoas/consultar-cpf/{cpf}": {
+      "get": {
+        "tags": [
+          "Pessoas Físicas"
+        ],
+        "summary": "Consulta CPF na FonteData",
+        "description": "Recebe CPF com ou sem máscara e usa exclusivamente [FonteDataCPF]. A chave de acesso permanece somente no FacilAppSQL.ini do servidor.",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/scripts/executar": {
+      "post": {
+        "tags": [
+          "Scripts PS1"
+        ],
+        "summary": "Executa arquivo PowerShell autorizado",
+        "description": "Executa somente arquivo .ps1 existente. Aceita caminho local ou UNC configurado em [Scripts] DiretoriosPermitidos; não aceita comando PowerShell no JSON. Sem caminho, procura no diretório padrão [Scripts] Diretorio. Exige Authorization: Bearer {access_token} válido.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"arquivo\":\"C:\\FacilApp\\API_FACILAPP_SQL\\Scripts\\Migrar-Pedidos.ps1\"}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Operação executada."
+          },
+          "400": {
+            "description": "Dados inválidos ou conflito de estrutura."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "403": {
+            "description": "Acesso recusado."
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/sync/status": {
+      "get": {
+        "tags": [
+          "Sincronização"
+        ],
+        "summary": "Consulta a configuração da sincronização",
+        "description": "Exibe o estado da sincronização SQLite → PostgreSQL e os parâmetros não sensíveis da seção [Sincronizacao]. Exige Authorization: Bearer {access_token} válido.",
+        "operationId": "StatusSincronizacao",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/sync/enviar": {
+      "post": {
+        "tags": [
+          "Sincronização"
+        ],
+        "summary": "Sincroniza uma tabela SQLite com o PostgreSQL",
+        "description": "Recebe uma tabela SQLite, cria a tabela de destino quando necessário, adiciona colunas ausentes e faz upsert dos registros no PostgreSQL configurado.\n\nExige `Authorization: Bearer {access_token}` válido.\n\nCorpo mínimo: `{ \"tabela\": \"vendas\" }`.\n\nCorpo com banco local explícito: `{ \"tabela\": \"vendas\", \"banco\": \"gourmet.db\" }`.\n\nQuando `banco` não for enviado, usa `[Sincronizacao] BancoLocal`. O destino usa `[Sincronizacao] BancoNuvem` e a configuração de conexão de `[PostgreSQL]`. A operação atual é sob demanda, envia/cria/atualiza registros e não propaga exclusões.",
+        "operationId": "EnviarTabelaSincronizacao",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncTableRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer": [ ]
+          }
+        ]
+      }
+    },
+    "/API/status": {
+      "get": {
+        "tags": [
+          "Ponte Claude — arquivos locais (porta 3000)"
+        ],
+        "summary": "Verifica se a ponte local está ativa",
+        "description": "Execute na porta da ponte, não na porta 5050 da API. A IA deve obter o token no FacilAppSQL.ini autorizado, seção [PonteClaude], chave Token, e enviá-lo somente no parâmetro token.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token configurado em [PonteClaude] Token no FacilAppSQL.ini. Não é o Bearer da API SQL e não deve ser exposto.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requisição atendida pela ponte.",
+            "content": {
+              "application/json": { }
+            }
+          },
+          "400": {
+            "description": "Caminho inválido ou não absoluto."
+          },
+          "401": {
+            "description": "Token da ponte ausente ou inválido."
+          },
+          "404": {
+            "description": "Arquivo ou rota não encontrado."
+          },
+          "503": {
+            "description": "Token da ponte não configurado no INI."
+          }
+        },
+        "servers": [
+          {
+            "url": "http://127.0.0.1:3000",
+            "description": "Ponte local configurada em [PonteClaude] Porta=3000"
+          }
+        ]
+      }
+    },
+    "/lancador.html": {
+      "get": {
+        "tags": [
+          "Ponte Claude — arquivos locais (porta 3000)"
+        ],
+        "summary": "Abre o lançador de arquivos locais",
+        "description": "O lançador converte caminhos Windows para URLs UTF-8, incluindo espaços e acentos. Depois da primeira autenticação válida, a ponte cria um cookie HTTP-only para os recursos filhos.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token configurado em [PonteClaude] Token no FacilAppSQL.ini. Não é o Bearer da API SQL e não deve ser exposto.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requisição atendida pela ponte.",
+            "content": {
+              "text/html": { }
+            }
+          },
+          "400": {
+            "description": "Caminho inválido ou não absoluto."
+          },
+          "401": {
+            "description": "Token da ponte ausente ou inválido."
+          },
+          "404": {
+            "description": "Arquivo ou rota não encontrado."
+          },
+          "503": {
+            "description": "Token da ponte não configurado no INI."
+          }
+        },
+        "servers": [
+          {
+            "url": "http://127.0.0.1:3000",
+            "description": "Ponte local configurada em [PonteClaude] Porta=3000"
+          }
+        ]
+      }
+    },
+    "/HTML/{caminhoAbsoluto}": {
+      "get": {
+        "tags": [
+          "Ponte Claude — arquivos locais (porta 3000)"
+        ],
+        "summary": "Publica um arquivo local pela ponte",
+        "description": "Informe o caminho absoluto do arquivo. A ponte aceita barras invertidas ou barras de URL e normaliza os dois formatos. Exemplo lógico: C:\\FacilApp\\Curso\\COWORK-SQLITE\\index.html. O caminho deve ser codificado em UTF-8 na URL. Esta rota somente transporta arquivos; ela não executa SQL.",
+        "parameters": [
+          {
+            "name": "caminhoAbsoluto",
+            "in": "path",
+            "description": "Caminho absoluto Windows codificado para URL, com todos os segmentos do arquivo.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "C:\\FacilApp\\Curso\\COWORK-SQLITE\\index.html"
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Token configurado em [PonteClaude] Token no FacilAppSQL.ini. Não é o Bearer da API SQL e não deve ser exposto.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "password"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requisição atendida pela ponte.",
+            "content": {
+              "application/octet-stream": { }
+            }
+          },
+          "400": {
+            "description": "Caminho inválido ou não absoluto."
+          },
+          "401": {
+            "description": "Token da ponte ausente ou inválido."
+          },
+          "404": {
+            "description": "Arquivo ou rota não encontrado."
+          },
+          "503": {
+            "description": "Token da ponte não configurado no INI."
+          }
+        },
+        "servers": [
+          {
+            "url": "http://127.0.0.1:3000",
+            "description": "Ponte local configurada em [PonteClaude] Porta=3000"
+          }
+        ]
+      }
+    },
+    "/imprime": {
+      "post": {
+        "tags": [
+          "Impressão local — agente porta 4000"
+        ],
+        "summary": "Imprime texto em impressora local, de rede ou IP",
+        "description": "Execute na porta 4000. Exige Authorization: Bearer {access_token}. Aceita impressão textual/ESC-POS por network_ip, windows_share, windows_installed ou serial_com.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "example": "{\"tipo\":\"network_ip\",\"ip\":\"192.168.2.200\",\"porta\":9100,\"texto\":\"COMANDA TESTE\\n\",\"cortar\":true}"
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Texto enviado para a impressora."
+          },
+          "400": {
+            "description": "Dados de impressão inválidos."
+          },
+          "401": {
+            "description": "Bearer ausente ou inválido."
+          },
+          "500": {
+            "description": "Falha de comunicação com a impressora."
+          }
+        },
+        "servers": [
+          {
+            "url": "http://127.0.0.1:4000",
+            "description": "Agente de impressão local"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClientSecretLoginRequest": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "client_secret": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyPaymentRequest": {
+        "type": "object",
+        "properties": {
+          "dataPagamento": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valor": {
+            "type": "number",
+            "format": "double"
+          },
+          "referencia": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyRequest": {
+        "type": "object",
+        "properties": {
+          "tipoPessoa": {
+            "type": "string",
+            "nullable": true
+          },
+          "cnpj": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "razaoSocial": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomeFantasia": {
+            "type": "string",
+            "nullable": true
+          },
+          "inscricaoEstadual": {
+            "type": "string",
+            "nullable": true
+          },
+          "inscricaoMunicipal": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefone": {
+            "type": "string",
+            "nullable": true
+          },
+          "cep": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoIbge": {
+            "type": "string",
+            "nullable": true
+          },
+          "uf": {
+            "type": "string",
+            "nullable": true
+          },
+          "cidade": {
+            "type": "string",
+            "nullable": true
+          },
+          "endereco": {
+            "type": "string",
+            "nullable": true
+          },
+          "numero": {
+            "type": "string",
+            "nullable": true
+          },
+          "complemento": {
+            "type": "string",
+            "nullable": true
+          },
+          "bairro": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoData": {
+            "type": "string",
+            "nullable": true
+          },
+          "genero": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataNascimento": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomeMae": {
+            "type": "string",
+            "nullable": true
+          },
+          "idade": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "zodiaco": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefonesJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "enderecosJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "salarioEstimado": {
+            "type": "string",
+            "nullable": true
+          },
+          "statusCadastral": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataStatusCadastral": {
+            "type": "string",
+            "nullable": true
+          },
+          "ultimaAtualizacaoFonte": {
+            "type": "string",
+            "nullable": true
+          },
+          "consultaJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoPagamento": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConfigurationFileUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "ini": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ConnectionProfileRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoBanco": {
+            "type": "string",
+            "nullable": true
+          },
+          "configuracao": { },
+          "senha": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DatabaseConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "ativo": {
+            "type": "boolean"
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "porta": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "senha": {
+            "type": "string",
+            "nullable": true
+          },
+          "dsn": {
+            "type": "string",
+            "nullable": true
+          },
+          "diretorio": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExecuteRequest": {
+        "type": "object",
+        "properties": {
+          "funcao": {
+            "type": "string",
+            "nullable": true
+          },
+          "acao": {
+            "type": "string",
+            "nullable": true
+          },
+          "effectiveFunction": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "GeneralConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "nomeInstancia": {
+            "type": "string",
+            "nullable": true
+          },
+          "nomeServicoWindows": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidorAtivo": {
+            "type": "boolean"
+          },
+          "porta": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timeoutSegundos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limiteCorpoKb": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maximoConexoes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ponteClaudeAtiva": {
+            "type": "boolean"
+          },
+          "portaPonteClaude": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tokenPonteClaude": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          },
+          "exigirToken": {
+            "type": "boolean"
+          },
+          "consultaLivre": {
+            "type": "boolean"
+          },
+          "validarPagamento": {
+            "type": "boolean"
+          },
+          "diasAcessoPagamento": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "permitirLocalhost": {
+            "type": "boolean"
+          },
+          "permitirRedeLocal": {
+            "type": "boolean"
+          },
+          "permitirTailscale": {
+            "type": "boolean"
+          },
+          "logAtivo": {
+            "type": "boolean"
+          },
+          "nivelLog": {
+            "type": "string",
+            "nullable": true
+          },
+          "retencaoDias": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "arquivosAtivos": {
+            "type": "boolean"
+          },
+          "tamanhoMaximoArquivoMb": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "diretorioBaseArquivos": {
+            "type": "string",
+            "nullable": true
+          },
+          "extensoesPermitidas": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ImportMenuRequest": {
+        "type": "object",
+        "properties": {
+          "pasta": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "IntegrationConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "mapaUserAgent": {
+            "type": "string",
+            "nullable": true
+          },
+          "zApiAtiva": {
+            "type": "boolean"
+          },
+          "zApiBaseUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "zApiInstanceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "zApiInstanceToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "zApiClientToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "alertasAtivos": {
+            "type": "boolean"
+          },
+          "numeroFacilApp": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocalUserLoginRequest": {
+        "type": "object",
+        "properties": {
+          "sistema_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "senha": {
+            "type": "string",
+            "nullable": true
+          },
+          "empresa_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "cnpj": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocalUserMenuRequest": {
+        "type": "object",
+        "properties": {
+          "menu_data": {
+            "type": "string",
+            "nullable": true
+          },
+          "menu_superior_data": {
+            "type": "string",
+            "nullable": true
+          },
+          "dashboard_data": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocalUserPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "senha": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocalUserRequest": {
+        "type": "object",
+        "properties": {
+          "sistema_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "empresa_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "senha": {
+            "type": "string",
+            "nullable": true
+          },
+          "client_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "menu_data": {
+            "type": "string",
+            "nullable": true
+          },
+          "menu_superior_data": {
+            "type": "string",
+            "nullable": true
+          },
+          "dashboard_data": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterLoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MenuProfileUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "menu_data": { },
+          "menu_superior_data": { },
+          "dashboard_data": { }
+        },
+        "additionalProperties": false
+      },
+      "MultibankColumnDefinition": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tamanho": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "nulo": {
+            "type": "boolean"
+          },
+          "chave_primaria": {
+            "type": "boolean"
+          },
+          "auto_incremento": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "MultibankDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "tipo_banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "where": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MultibankInsertRequest": {
+        "type": "object",
+        "properties": {
+          "tipo_banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "dados": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MultibankQueryRequest": {
+        "type": "object",
+        "properties": {
+          "tipo_banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "campos": {
+            "type": "string",
+            "nullable": true
+          },
+          "where": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MultibankSchemaRequest": {
+        "type": "object",
+        "properties": {
+          "tipo_banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "campos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MultibankColumnDefinition"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MultibankUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "tipo_banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "servidor": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          },
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "dados": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          },
+          "where": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PowerShellScriptRequest": {
+        "type": "object",
+        "properties": {
+          "arquivo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SyncTableRequest": {
+        "type": "object",
+        "properties": {
+          "tabela": {
+            "type": "string",
+            "nullable": true
+          },
+          "banco": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SystemRequest": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nome": {
+            "type": "string",
+            "nullable": true
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VlinkConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "sqlClientId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nfeClientId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nfeClientSecret": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ZApiText": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ZApiWebhookRequest": {
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "messageId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromMe": {
+            "type": "boolean"
+          },
+          "fromApi": {
+            "type": "boolean"
+          },
+          "isGroup": {
+            "type": "boolean"
+          },
+          "isStatusReply": {
+            "type": "boolean"
+          },
+          "isEdit": {
+            "type": "boolean"
+          },
+          "isNewsletter": {
+            "type": "boolean"
+          },
+          "text": {
+            "$ref": "#/components/schemas/ZApiText"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Informe somente o Bearer temporário, sem senhas ou Client Secrets.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Ponte Claude — arquivos locais (porta 3000)",
+      "description": "Serve arquivos locais para IAs e navegadores. O token não é um Bearer: ele fica em [PonteClaude] Token no FacilAppSQL.ini e é enviado no parâmetro de query token. O valor é relido do INI a cada chamada, portanto pode ser trocado sem reiniciar a API. Nunca copie o token para prompts, páginas HTML, repositórios, capturas ou logs."
+    },
+    {
+      "name": "Impressão local — agente porta 4000",
+      "description": "Agente local de impressão textual/ESC-POS. É um serviço separado da API SQL e atende em http://127.0.0.1:4000."
+    }
+  ]
+}

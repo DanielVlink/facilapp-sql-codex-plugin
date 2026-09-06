@@ -15,10 +15,16 @@ Use as ferramentas MCP `facilapp_*` para interagir com a API.
 - Não invente rotas ou campos ausentes no OpenAPI.
 - Trate operações de escrita como alterações externas e confirme o alvo exato.
 - Preserve os dois modelos de autenticação: login completo e Client/Secret são adicionais, não substitutos.
+- Não envie `scope` no login simples; envie somente `client_id` e `client_secret`.
+- Diferencie `listar_tabelas`, que retorna nomes de tabelas, de `consultar`, que retorna registros.
+- A atualização do banco interno ocorre automaticamente na inicialização; não procure nem use endpoint público de atualização estrutural.
+- Para importar menus, use `facilapp_importar_menu`. A pasta deve conter `MenuData.js`, `MenuSuperiorData.js` e `DashboardData.js`; somente `MenuData.js` não pode estar vazio.
 
 ## Fluxo normal
 
 1. Verifique a disponibilidade com `facilapp_status`.
 2. Autentique com `facilapp_login` quando necessário.
-3. Use `facilapp_executar` para o dispatcher `/executar`.
-4. Use `facilapp_request` para outros endpoints documentados.
+3. Use `facilapp_listar_tabelas` para descobrir as tabelas existentes.
+4. Use `facilapp_consultar` para consultar registros de uma tabela.
+5. Use `facilapp_executar` para as demais funções do dispatcher `/executar`.
+6. Use `facilapp_request` para outros endpoints documentados.

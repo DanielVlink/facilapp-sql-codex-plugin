@@ -38,8 +38,11 @@ def api_request(method: str, path: str, body: Any = None, authenticated: bool = 
 TOOLS = [
     {"name": "facilapp_status", "description": "Verifica o status e a versão pública da FacilApp SQL API.", "inputSchema": {"type": "object", "properties": {}}},
     {"name": "facilapp_openapi", "description": "Obtém o contrato OpenAPI oficial da FacilApp SQL API.", "inputSchema": {"type": "object", "properties": {}}},
-    {"name": "facilapp_login", "description": "Autentica por Client ID e Client Secret e mantém o Bearer somente na memória deste servidor MCP.", "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "client_secret": {"type": "string"}, "scope": {"type": "string"}}, "required": ["client_id", "client_secret"]}},
+    {"name": "facilapp_login", "description": "Autentica por Client ID e Client Secret e mantém o Bearer somente na memória deste servidor MCP.", "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "client_secret": {"type": "string"}}, "required": ["client_id", "client_secret"]}},
     {"name": "facilapp_executar", "description": "Envia um pedido autenticado ao dispatcher POST /executar da FacilApp SQL API.", "inputSchema": {"type": "object", "properties": {"pedido": {"type": "object", "additionalProperties": True}}, "required": ["pedido"]}},
+    {"name": "facilapp_listar_tabelas", "description": "Lista os nomes das tabelas existentes no banco informado.", "inputSchema": {"type": "object", "properties": {"tipo_banco": {"type": "string"}, "banco": {"type": "string"}}, "required": ["tipo_banco", "banco"]}},
+    {"name": "facilapp_consultar", "description": "Consulta os registros de uma tabela; esta operação é diferente de listar tabelas.", "inputSchema": {"type": "object", "properties": {"tipo_banco": {"type": "string"}, "banco": {"type": "string"}, "tabela": {"type": "string"}, "campos": {"type": "string", "default": "*"}, "where": {"type": "object"}}, "required": ["tipo_banco", "banco", "tabela"]}},
+    {"name": "facilapp_importar_menu", "description": "Importa MenuData.js, MenuSuperiorData.js e DashboardData.js de uma pasta e grava os menus do usuário.", "inputSchema": {"type": "object", "properties": {"empresa_id": {"type": "string"}, "usuario_id": {"type": "string"}, "pasta": {"type": "string"}}, "required": ["empresa_id", "usuario_id", "pasta"]}},
     {"name": "facilapp_request", "description": "Chama um endpoint documentado da FacilApp SQL API usando o Bearer em memória quando solicitado.", "inputSchema": {"type": "object", "properties": {"method": {"type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]}, "path": {"type": "string"}, "body": {}, "authenticated": {"type": "boolean", "default": True}}, "required": ["method", "path"]}},
 ]
 
@@ -51,7 +54,7 @@ def call_tool(name: str, args: dict[str, Any]) -> Any:
     if name == "facilapp_openapi":
         return api_request("GET", "/swagger/v1/swagger.json", authenticated=False)
     if name == "facilapp_login":
-        result = api_request("POST", "/oauth/login-simples", {"client_id": args["client_id"], "client_secret": args["client_secret"], "scope": args.get("scope")}, authenticated=False)
+        result = api_request("POST", "/oauth/login-simples", {"client_id": args["client_id"], "client_secret": args["client_secret"]}, authenticated=False)
         ACCESS_TOKEN = result.get("access_token")
         safe = dict(result)
         if "access_token" in safe:
@@ -59,6 +62,16 @@ def call_tool(name: str, args: dict[str, Any]) -> Any:
         return safe
     if name == "facilapp_executar":
         return api_request("POST", "/executar", args["pedido"], authenticated=True)
+    if name == "facilapp_listar_tabelas":
+        return api_request("POST", "/executar", {"funcao": "listar_tabelas", "tipo_banco": args["tipo_banco"], "banco": args["banco"]}, authenticated=True)
+    if name == "facilapp_consultar":
+        pedido = {"funcao": "consultar", "tipo_banco": args["tipo_banco"], "banco": args["banco"], "tabela": args["tabela"], "campos": args.get("campos", "*")}
+        if "where" in args:
+            pedido["where"] = args["where"]
+        return api_request("POST", "/executar", pedido, authenticated=True)
+    if name == "facilapp_importar_menu":
+        path = f"/api/console/empresas/{args['empresa_id']}/usuarios/{args['usuario_id']}/ImportaMenu"
+        return api_request("POST", path, {"pasta": args["pasta"]}, authenticated=True)
     if name == "facilapp_request":
         path = str(args["path"])
         if not path.startswith("/") or "://" in path:
