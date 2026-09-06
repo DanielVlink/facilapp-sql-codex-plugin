@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "facilapp-sql": {
+      "command": "python",
+      "args": ["./server/facilapp_mcp.py"],
+      "env": {
+        "FACILAPP_BASE_URL": "https://sql.facilapp.com.br"
+      }
+    }
+  }
+}

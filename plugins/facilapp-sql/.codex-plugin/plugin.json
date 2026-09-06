@@ -1,0 +1,37 @@
+{
+  "name": "facilapp-sql",
+  "version": "0.1.0+codex.20260906004931",
+  "description": "Integra a FacilApp SQL API ao Codex por ferramentas MCP.",
+  "author": {
+    "name": "FacilApp"
+  },
+  "homepage": "https://sql.facilapp.com.br/docs/",
+  "repository": "https://github.com/DanielVlink/facilapp-sql-codex-plugin",
+  "license": "MIT",
+  "keywords": ["facilapp", "sql", "oauth2", "mcp", "openapi"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "FacilApp SQL",
+    "shortDescription": "Consulte e execute opera\u00e7\u00f5es na FacilApp SQL API.",
+    "longDescription": "Conecta o Codex \u00e0 API FacilApp SQL por OAuth2 e ferramentas MCP para status, documenta\u00e7\u00e3o, chamadas e execu\u00e7\u00e3o multibanco.",
+    "developerName": "FacilApp",
+    "category": "Productivity",
+    "capabilities": [
+      "OAuth2",
+      "SQL multibanco",
+      "OpenAPI",
+      "Execu\u00e7\u00e3o de comandos"
+    ],
+    "websiteURL": "https://sql.facilapp.com.br/docs/",
+    "brandColor": "#60731d",
+    "composerIcon": "./assets/facilapp.ico",
+    "logo": "./assets/facilapp.ico",
+    "logoDark": "./assets/facilapp.ico",
+    "defaultPrompt": [
+      "Verifique o status da API FacilApp SQL",
+      "Consulte a documenta\u00e7\u00e3o da FacilApp SQL",
+      "Execute uma opera\u00e7\u00e3o na FacilApp SQL"
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}
