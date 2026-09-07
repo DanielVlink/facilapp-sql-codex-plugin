@@ -63,7 +63,7 @@
           "Usuários"
         ],
         "summary": "Cadastra usuário da empresa",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Informe nome, usuário, senha, `client_id` e, opcionalmente, os três JSONs de menu.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados. Informe `sistema_id`, nome, cargo livre, usuário, senha e, opcionalmente, os três JSONs de menu. A duplicidade é verificada por empresa + sistema + usuário. O cadastro não recebe Client ID nem Client Secret.",
         "parameters": [
           {
             "name": "empresaId",
@@ -470,7 +470,7 @@
           "Usuários"
         ],
         "summary": "Lista os usuários ativos de uma empresa",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados.",
         "parameters": [
           {
             "name": "empresaId",
@@ -497,7 +497,7 @@
           "Usuários"
         ],
         "summary": "Cadastra usuário da empresa",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Informe nome, usuário, senha, `client_id` e, opcionalmente, os três JSONs de menu.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados. Informe `sistema_id`, nome, cargo livre, usuário, senha e, opcionalmente, os três JSONs de menu. A duplicidade é verificada por empresa + sistema + usuário. O cadastro não recebe Client ID nem Client Secret.",
         "parameters": [
           {
             "name": "empresaId",
@@ -535,7 +535,7 @@
           "Usuários"
         ],
         "summary": "Consulta um usuário da empresa",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados.",
         "parameters": [
           {
             "name": "empresaId",
@@ -570,7 +570,7 @@
           "Usuários"
         ],
         "summary": "Altera dados e menus de um usuário",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados.",
         "parameters": [
           {
             "name": "empresaId",
@@ -698,7 +698,7 @@
           "Usuários"
         ],
         "summary": "Exclui usuário",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. A exclusão impede novos logins imediatamente.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados. A exclusão impede novos logins imediatamente.",
         "parameters": [
           {
             "name": "id",
@@ -727,7 +727,7 @@
           "Usuários"
         ],
         "summary": "Altera somente a senha de um usuário",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados.",
         "parameters": [
           {
             "name": "empresaId",
@@ -773,7 +773,7 @@
           "Usuários"
         ],
         "summary": "Consulta menus e dashboards de um usuário",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. Retorna `menu_data`, `menu_superior_data` e `dashboard_data` como listas JSON.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados. Retorna `menu_data`, `menu_superior_data` e `dashboard_data` como listas JSON.",
         "parameters": [
           {
             "name": "empresaId",
@@ -808,7 +808,7 @@
           "Usuários"
         ],
         "summary": "Grava menus e dashboards de um usuário",
-        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas, hashes e Client Secrets nunca são retornados. O corpo contém as listas JSON `menu_data`, `menu_superior_data` e `dashboard_data`.",
+        "description": "Endpoint da API única, acessível por qualquer origem autorizada com access token: localhost, LAN, internet ou Tailscale. O usuário permanece vinculado à empresa indicada por `empresaId`; senhas e hashes nunca são retornados. O corpo contém as listas JSON `menu_data`, `menu_superior_data` e `dashboard_data`.",
         "parameters": [
           {
             "name": "empresaId",
@@ -2214,11 +2214,11 @@
             "type": "string",
             "nullable": true
           },
-          "senha": {
+          "cargo": {
             "type": "string",
             "nullable": true
           },
-          "client_id": {
+          "senha": {
             "type": "string",
             "nullable": true
           },

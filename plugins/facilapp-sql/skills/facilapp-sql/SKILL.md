@@ -15,6 +15,8 @@ Use as ferramentas MCP `facilapp_*` para interagir com a API.
 - Não invente rotas ou campos ausentes no OpenAPI.
 - Trate operações de escrita como alterações externas e confirme o alvo exato.
 - Preserve os dois modelos de autenticação: login completo e Client/Secret são adicionais, não substitutos.
+- O cadastro de usuário contém empresa, sistema, usuário e senha; não existe cadastro separado de credencial.
+- No endpoint `/oauth/login-simples`, `client_id` é encaminhado internamente como usuário e `client_secret` como senha.
 - Não envie `scope` no login simples; envie somente `client_id` e `client_secret`.
 - Diferencie `listar_tabelas`, que retorna nomes de tabelas, de `consultar`, que retorna registros.
 - A atualização do banco interno ocorre automaticamente na inicialização; não procure nem use endpoint público de atualização estrutural.
