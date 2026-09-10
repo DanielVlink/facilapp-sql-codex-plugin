@@ -20,6 +20,9 @@ Use as ferramentas MCP `facilapp_*` para interagir com a API.
 - Não envie `scope` no login simples; envie somente `client_id` e `client_secret`.
 - Diferencie `listar_tabelas`, que retorna nomes de tabelas, de `consultar`, que retorna registros.
 - A atualização do banco interno ocorre automaticamente na inicialização; não procure nem use endpoint público de atualização estrutural.
+- A API completa automaticamente o `FacilAppSQL.ini` na inicialização: cria somente seções e chaves ausentes com valores padrão e nunca apaga ou substitui valores existentes.
+- `ServidorHTTP.TimeoutSegundos` usa 180 segundos quando o campo estiver ausente, permitindo consultas demoradas com IA e busca na web.
+- Instalação, atualização e desinstalação preservam o INI e os bancos existentes.
 - Para importar menus, use `facilapp_importar_menu`. A pasta deve conter `MenuData.js`, `MenuSuperiorData.js` e `DashboardData.js`; somente `MenuData.js` não pode estar vazio.
 
 ## Fluxo normal
