@@ -25,9 +25,9 @@ def api_request(method: str, path: str, body: Any = None, authenticated: bool = 
         headers["Authorization"] = f"Bearer {ACCESS_TOKEN}"
     request = Request(f"{BASE_URL}/{path.lstrip('/')}", data=data, headers=headers, method=method.upper())
     try:
-        # Consultas com IA e web search podem aguardar até 180 segundos na API.
+        # Consultas com IA e web search podem aguardar até 300 segundos na API.
         # A margem adicional evita que o MCP encerre antes do servidor.
-        with urlopen(request, timeout=210) as response:
+        with urlopen(request, timeout=330) as response:
             raw = response.read().decode("utf-8")
             return json.loads(raw) if raw else {"ok": True, "status": response.status}
     except HTTPError as error:
