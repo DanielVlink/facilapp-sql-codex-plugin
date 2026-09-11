@@ -45,6 +45,7 @@ TOOLS = [
     {"name": "facilapp_listar_tabelas", "description": "Lista os nomes das tabelas existentes no banco informado.", "inputSchema": {"type": "object", "properties": {"tipo_banco": {"type": "string"}, "banco": {"type": "string"}}, "required": ["tipo_banco", "banco"]}},
     {"name": "facilapp_consultar", "description": "Consulta os registros de uma tabela; esta operação é diferente de listar tabelas.", "inputSchema": {"type": "object", "properties": {"tipo_banco": {"type": "string"}, "banco": {"type": "string"}, "tabela": {"type": "string"}, "campos": {"type": "string", "default": "*"}, "where": {"type": "object"}}, "required": ["tipo_banco", "banco", "tabela"]}},
     {"name": "facilapp_importar_menu", "description": "Importa MenuData.js, MenuSuperiorData.js e DashboardData.js de uma pasta e grava os menus do usuário.", "inputSchema": {"type": "object", "properties": {"empresa_id": {"type": "string"}, "usuario_id": {"type": "string"}, "pasta": {"type": "string"}}, "required": ["empresa_id", "usuario_id", "pasta"]}},
+    {"name": "facilapp_consultar_cep", "description": "Consulta um CEP brasileiro sem chave externa e retorna o endereço normalizado pela FacilApp SQL API.", "inputSchema": {"type": "object", "properties": {"cep": {"type": "string", "description": "CEP com 8 dígitos, com ou sem máscara."}}, "required": ["cep"]}},
     {"name": "facilapp_request", "description": "Chama um endpoint documentado da FacilApp SQL API usando o Bearer em memória quando solicitado.", "inputSchema": {"type": "object", "properties": {"method": {"type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]}, "path": {"type": "string"}, "body": {}, "authenticated": {"type": "boolean", "default": True}}, "required": ["method", "path"]}},
 ]
 
@@ -74,6 +75,11 @@ def call_tool(name: str, args: dict[str, Any]) -> Any:
     if name == "facilapp_importar_menu":
         path = f"/api/console/empresas/{args['empresa_id']}/usuarios/{args['usuario_id']}/ImportaMenu"
         return api_request("POST", path, {"pasta": args["pasta"]}, authenticated=True)
+    if name == "facilapp_consultar_cep":
+        cep = "".join(character for character in str(args["cep"]) if character.isdigit())
+        if len(cep) != 8:
+            raise ValueError("Informe um CEP com 8 dígitos.")
+        return api_request("GET", f"/api/console/enderecos/consultar-cep/{cep}", authenticated=False)
     if name == "facilapp_request":
         path = str(args["path"])
         if not path.startswith("/") or "://" in path:

@@ -25,6 +25,7 @@ Use as ferramentas MCP `facilapp_*` para interagir com a API.
 - `IA.TimeoutSegundos` usa 300 segundos quando estiver ausente e controla exclusivamente as consultas à OpenAI, inclusive busca na web.
 - Instalação, atualização e desinstalação preservam o INI e os bancos existentes.
 - Para importar menus, use `facilapp_importar_menu`. A pasta deve conter `MenuData.js`, `MenuSuperiorData.js` e `DashboardData.js`; somente `MenuData.js` não pode estar vazio.
+- Para consultar endereço por CEP, use `facilapp_consultar_cep`. Informe 8 dígitos, com ou sem máscara; a consulta não exige chave externa.
 
 ## Fluxo normal
 

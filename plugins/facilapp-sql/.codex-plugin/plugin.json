@@ -1,6 +1,6 @@
 {
   "name": "facilapp-sql",
-  "version": "0.1.0+codex.20260910061228",
+  "version": "0.1.0+codex.20260910234622",
   "description": "Integra a FacilApp SQL API ao Codex por ferramentas MCP.",
   "author": {
     "name": "FacilApp"

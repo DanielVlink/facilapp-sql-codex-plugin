@@ -452,6 +452,30 @@
         }
       }
     },
+    "/api/console/enderecos/consultar-cep/{cep}": {
+      "get": {
+        "tags": [
+          "Endereços"
+        ],
+        "summary": "Consulta endereço pelo CEP",
+        "description": "Consulta um CEP com 8 dígitos, sem exigir chave de serviço postal. Exemplo: GET /api/console/enderecos/consultar-cep/18187058.",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/console/credenciadores": {
       "get": {
         "tags": [
